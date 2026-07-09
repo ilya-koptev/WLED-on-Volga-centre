@@ -1,67 +1,68 @@
-# WLED baseline — Volga centre (captured 2026-07-09)
+# Базовый конфиг WLED — Volga centre (снято 2026-07-09)
 
-Raw configuration snapshot of the existing WLED installation, read live over the
-network. This is the **starting point** for building a new WLED project/config.
+Снимок текущей конфигурации существующей инсталляции WLED, считанный вживую по
+сети. Это **отправная точка** для создания нового проекта/конфигурации WLED.
 
-## Device
+## Устройство
 
 | | |
 |---|---|
-| Name | `WLED-Gledopto` |
-| Hardware | Gledopto Elite (ESP32) |
-| Firmware | WLED 0.15.1-beta2 (`Gledopto_Elite_2D-EXMU`) |
+| Имя | `WLED-Gledopto` |
+| Железо | Gledopto Elite (ESP32) |
+| Прошивка | WLED 0.15.1-beta2 (`Gledopto_Elite_2D-EXMU`) |
 | MAC | `20:e7:c8:61:27:14` |
-| IP | 192.168.69.100 (static), LAN 192.168.69.0/24, gw .1 |
-| LEDs | 600× WS2812 RGB (type 22, GRB) on GPIO16, single output |
-| Power limit (ABL) | 850 mA @ 55 mA/LED — very low for 600 LEDs |
+| IP | 192.168.69.100 (статический), LAN 192.168.69.0/24, шлюз .1 |
+| Светодиоды | 600× WS2812 RGB (тип 22, порядок GRB), 1 линия, GPIO16 |
+| Лимит мощности (ABL) | 850 мА при 55 мА/LED — очень мало для 600 диодов |
 | FPS | 42 |
-| Button / Relay / IR | GPIO17 / GPIO18 / disabled |
-| Usermod | AudioReactive **enabled** (I2S mic pins 32/15/14, gain 60, AGC on) |
-| MQTT / Alexa / Hue / NTP | all off |
-| Sync | receive on, send off; realtime E1.31/sACN/DDP on (port 5568) |
-| OTA lock | **off** (anyone on LAN can reflash) |
+| Кнопка / Реле / IR | GPIO17 / GPIO18 / выключен |
+| Usermod | AudioReactive **включён** (микрофон I2S, пины 32/15/14, gain 60, AGC вкл) |
+| MQTT / Alexa / Hue / NTP | всё выключено |
+| Синхронизация | приём вкл, отправка выкл; realtime E1.31/sACN/DDP вкл (порт 5568) |
+| Блокировка OTA | **выключена** (любой в LAN может перепрошить) |
 
-## Files (raw, exactly as returned by the device)
+## Файлы (сырые, ровно как отдало устройство)
 
-| File | Endpoint | What it is |
+| Файл | Эндпоинт | Что это |
 |---|---|---|
-| `cfg.json` | `/cfg.json` | Full device config (network, hardware, LED, sync, usermods). Passwords are masked by WLED (length only). Restorable via Config → Security → Restore. |
-| `presets.json` | `/presets.json` | All presets (only preset **1 "Test1"** is defined; slots 2–31 empty). Restorable the same way. |
-| `state.json` | `/json/state` | Live state at capture: on, bri 128, active preset 1, 5 segments. |
-| `info.json` | `/json/info` | Runtime info (fw, LED count, heap, usermod status). |
-| `effects.json` | `/json/eff` | Effect name list (187 effects in this build). |
-| `palettes.json` | `/json/pal` | Palette name list (71 palettes). |
-| `fxdata.json` | `/json/fxda` | Per-effect metadata (slider/color/option semantics). |
-| `nodes.json` | `/json/nodes` | Discovered sync nodes (empty — none). |
-| `full.json` | `/json` | Combined state+info+effects+palettes (superset dump). |
+| `cfg.json` | `/cfg.json` | Полный конфиг устройства (сеть, железо, LED, синхронизация, usermod'ы). Пароли замаскированы WLED (только длина). Восстанавливается через Config → Security → Restore. |
+| `presets.json` | `/presets.json` | Все пресеты (определён только пресет **1 «Test1»**, слоты 2–31 пустые). Восстанавливается так же. |
+| `state.json` | `/json/state` | Состояние на момент снятия: вкл, яркость 128, активен пресет 1, 5 сегментов. |
+| `info.json` | `/json/info` | Рантайм-инфо (прошивка, число LED, heap, статус usermod'ов). |
+| `effects.json` | `/json/eff` | Список названий эффектов (187 штук в этой сборке). |
+| `palettes.json` | `/json/pal` | Список названий палитр (71 штука). |
+| `fxdata.json` | `/json/fxda` | Метаданные по каждому эффекту (смысл ползунков/цветов/опций). |
+| `nodes.json` | `/json/nodes` | Обнаруженные узлы синхронизации (пусто — нет). |
+| `full.json` | `/json` | Сводный дамп state+info+effects+palettes (надмножество). |
 
-> `ledmap.json` / `ledmap0.json` return **404** — no custom 2D pixel map exists on
-> the device (`info.maps = [{id:0}]` is the default identity map; the strip is
-> treated as 1D). Not included.
+> `ledmap.json` / `ledmap0.json` возвращают **404** — кастомной 2D-карты пикселей на
+> устройстве нет (`info.maps = [{id:0}]` — дефолтная тождественная карта, лента
+> трактуется как 1D). В бэкап не включены.
 >
-> `wsec.json` (Wi-Fi / AP / OTA passwords in cleartext) was **deliberately not
-> captured** — no secrets are committed here.
+> `wsec.json` (пароли Wi-Fi / AP / OTA открытым текстом) **намеренно не снимался** —
+> секретов в этом репозитории нет.
 
-## Segment layout (preset 1 "Test1")
+## Раскладка сегментов (пресет 1 «Test1»)
 
-WLED `stop` is **exclusive** → a segment covers pixels `[start … stop-1]`, `len = stop-start`.
+В WLED `stop` — **не включается** в диапазон → сегмент занимает пиксели `[start … stop-1]`, `len = stop-start`.
 
-| Seg | Name | start | stop | Pixels | Effect | Colors |
+| Seg | Имя | start | stop | Пиксели | Эффект | Цвета |
 |---|---|---|---|---|---|---|
-| 0 | Big circle | 0 | 213 | 0–212 | fx 11 Scan Dual | blue-violet + red |
-| 3 | Connect | 214 | 333 | 214–332 | fx 0 Solid | amber |
-| 2 | Branch 1 | 334 | 366 | 334–365 | fx 0 Solid | amber |
-| 1 | Small circle | 367 | 576 | 367–575 | fx 10 Scan | amber |
-| 4 | Branch 2 | 577 | 599 | 577–598 | fx 0 Solid | red |
+| 0 | Big circle | 0 | 213 | 0–212 | fx 11 Scan Dual | сине-фиолетовый + красный |
+| 3 | Connect | 214 | 333 | 214–332 | fx 0 Solid | янтарный |
+| 2 | Branch 1 | 334 | 366 | 334–365 | fx 0 Solid | янтарный |
+| 1 | Small circle | 367 | 576 | 367–575 | fx 10 Scan | янтарный |
+| 4 | Branch 2 | 577 | 599 | 577–598 | fx 0 Solid | красный |
 
-## Notes for the new project
+## Заметки для нового проекта
 
-- **Suspected off-by-one:** each segment starts +1 after the previous one's `stop`,
-  leaving pixels **213, 333, 366, 576, 599** unassigned (they stay dark). If the strip
-  is physically continuous (no gaps), shift each `start` to the previous `stop`
-  (0–213, 213–334, 334–366, 366–576, 576–600) so all 600 LEDs are used. **Not yet
-  confirmed live.**
-- **AudioReactive is enabled but unused visually** — none of the current effects
-  (Solid / Scan / Scan Dual) are sound-reactive. Music currently changes nothing.
-- **Palettes unused** — everything runs on manual per-segment colors (`pal 0`).
-- Two-level brightness: segments at 255 scaled by global 128 → effective ~50%.
+- **Подозрение на off-by-one:** каждый сегмент начинается на +1 после `stop`
+  предыдущего, из-за чего пиксели **213, 333, 366, 576, 599** не входят ни в один
+  сегмент (остаются тёмными). Если лента физически непрерывная (без пропусков), надо
+  сдвинуть каждый `start` к `stop` предыдущего (0–213, 213–334, 334–366, 366–576,
+  576–600), чтобы задействовать все 600 LED. **Вживую пока не подтверждено.**
+- **AudioReactive включён, но визуально не используется** — ни один из текущих
+  эффектов (Solid / Scan / Scan Dual) не является звукореактивным. Музыка сейчас ни
+  на что не влияет.
+- **Палитры не используются** — всё держится на ручных цветах сегментов (`pal 0`).
+- Двухуровневая яркость: сегменты по 255, масштабируются глобальными 128 → фактически ~50%.
